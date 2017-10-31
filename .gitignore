@@ -11,3 +11,5 @@ composer.phar
 .idea/workspace.xml
 .idea/vcs.xml
 .idea/vcs.xml
+*.lock
+.idea/php.xml

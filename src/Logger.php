@@ -166,13 +166,16 @@ class Logger extends AbstractLogger
      *
      * @param  string $level   The Log Level of the message
      * @param  string $message The message to log
-     * @param  array  $context The context
      * @return string
      */
     protected function formatMessage($level, $message, $context)
     {
         $message = "[{$this->getTimestamp()}] [{$level}] {$message}";
-        $message .= PHP_EOL.$this->indent($this->contextToString($context));
+
+        if (! empty($context)) {
+            $message .= PHP_EOL.$this->indent($this->contextToString($context));
+        }
+
         return $message.PHP_EOL;
 
     }
