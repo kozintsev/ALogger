@@ -10,7 +10,6 @@
             "email": "o.kozintsev@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
         "php": ">=5.3",
         "psr/log": "^1.0.0"
