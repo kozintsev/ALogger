@@ -13,14 +13,14 @@ use Psr\Log\LogLevel;
  * Originally written for use with wpSearch
  *
  * Usage:
- * $log = new kozintsev\ALogger\Logger('/var/log/', Psr\Log\LogLevel::INFO);
+ * $log = new kozintsev\ALogger\Logger('/var/log/mylog.log', Psr\Log\LogLevel::INFO);
  * $log->info('Returned a million search results'); //Prints to the log file
  * $log->error('Oh dear.'); //Prints to the log file
  * $log->debug('x = 5'); //Prints nothing due to current severity threshhold
  *
- * @author  Kenny Katzgrau <katzgrau@gmail.com>
- * @since   July 26, 2008
- * @link    https://github.com/katzgrau/KLogger
+ * @author  Oleg  Kozintsev<o.kozintsev@gmail.com>
+ * @since   31.10.2017
+ * @link    https://github.com/kozintsev/ALogger
  * @version 1.0.0
  */
 
@@ -33,7 +33,7 @@ class Logger extends AbstractLogger
      * Path to the log file
      * @var string
      */
-    private $logFilePath;
+    private $logFullName;
 
     /**
      * Current minimum logging threshold
@@ -74,24 +74,21 @@ class Logger extends AbstractLogger
     /**
      * Class constructor
      *
-     * @param string $logFilePath      File path to the logging file
+     * @param string $logFullName      Full name logging file
      * @param string $logLevelThreshold The LogLevel Threshold
-     *
-     * @internal param string $logFilePrefix The prefix for the log file name
-     * @internal param string $logFileExt The extension for the log file
      */
-    public function __construct($logFilePath, $logLevelThreshold = LogLevel::DEBUG)
+    public function __construct($logFullName, $logLevelThreshold = LogLevel::DEBUG)
     {
         $this->logLevelThreshold = $logLevelThreshold;
 
-        $logDirectory = dirname($logFilePath);
+        $logDirectory = dirname($logFullName);
 
         $logDirectory = rtrim($logDirectory, DIRECTORY_SEPARATOR);
         if ( ! file_exists($logDirectory)) {
             mkdir($logDirectory, $this->defaultPermissions, true);
         }
 
-        $this->logFilePath = $logFilePath;
+        $this->logFullName = $logFullName;
 
     }
 
@@ -131,7 +128,7 @@ class Logger extends AbstractLogger
     public function write($message)
     {
         try {
-            $fileHandle = fopen($this->logFilePath, 'ab');
+            $fileHandle = fopen($this->logFullName, 'ab');
             $this->lastLine = trim($message);
             fwrite($fileHandle, $message);
             fclose($fileHandle);
@@ -146,9 +143,9 @@ class Logger extends AbstractLogger
      *
      * @return string
      */
-    public function getLogFilePath()
+    public function getLogFullName()
     {
-        return $this->logFilePath;
+        return $this->logFullName;
     }
 
     /**

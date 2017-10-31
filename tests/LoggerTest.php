@@ -24,7 +24,7 @@ class LoggerTest extends TestCase
         $this->logPath = __DIR__.'/logs/test.log';
         $this->logger = new ALogger\Logger($this->logPath, LogLevel::DEBUG);
 
-        $this->assertStringEndsWith('.log', $this->logger->getLogFilePath());
+        $this->assertStringEndsWith('.log', $this->logger->getLogFullName());
     }
 
 
@@ -35,14 +35,14 @@ class LoggerTest extends TestCase
 
         $this->logger->log(LogLevel::DEBUG, 'This is a test');
 
-        $this->assertTrue(file_exists($this->logger->getLogFilePath()));
+        $this->assertTrue(file_exists($this->logger->getLogFullName()));
 
         $this->assertLastLineEquals($this->logger);
     }
 
     public function assertLastLineEquals(ALogger\Logger $logr)
     {
-        $this->assertEquals($logr->getLastLogLine(), $this->getLastLine($logr->getLogFilePath()));
+        $this->assertEquals($logr->getLastLogLine(), $this->getLastLine($logr->getLogFullName()));
     }
 
     private function getLastLine($filename)
