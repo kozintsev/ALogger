@@ -7,3 +7,4 @@ composer.phar
 *.lock
 .idea/*
 *.log
+*.phar
