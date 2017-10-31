@@ -1,33 +1,38 @@
 <?php
+include '../vendor/autoload.php';
 
-use kozintsev\ALogger\Logger;
+use kozintsev\ALogger;
 use Psr\Log\LogLevel;
+use PHPUnit\Framework\TestCase;
 
-class LoggerTest extends PHPUnit_Framework_TestCase
+class LoggerTest extends TestCase
 {
     private $logPath;
 
     private $logger;
 
-    public function setUp()
-    {
-        $this->logPath = __DIR__.'/logs/test.log';
-        $this->logger = new Logger($this->logPath, LogLevel::DEBUG);
-    }
 
     public function testImplementsPsr3LoggerInterface()
     {
+        $this->logPath = __DIR__.'/logs/test.log';
+        $this->logger = new ALogger\Logger($this->logPath, LogLevel::DEBUG);
         $this->assertInstanceOf('Psr\Log\LoggerInterface', $this->logger);
     }
 
     public function testAcceptsExtension()
     {
-        $this->assertStringEndsWith('.log', $this->errLogger->getLogFilePath());
+        $this->logPath = __DIR__.'/logs/test.log';
+        $this->logger = new ALogger\Logger($this->logPath, LogLevel::DEBUG);
+
+        $this->assertStringEndsWith('.log', $this->logger->getLogFilePath());
     }
 
 
     public function testWritesBasicLogs()
     {
+        $this->logPath = __DIR__.'/logs/test.log';
+        $this->logger = new ALogger\Logger($this->logPath, LogLevel::DEBUG);
+
         $this->logger->log(LogLevel::DEBUG, 'This is a test');
 
         $this->assertTrue(file_exists($this->logger->getLogFilePath()));
@@ -35,15 +40,9 @@ class LoggerTest extends PHPUnit_Framework_TestCase
         $this->assertLastLineEquals($this->logger);
     }
 
-
-    public function assertLastLineEquals(Logger $logr)
+    public function assertLastLineEquals(ALogger\Logger $logr)
     {
         $this->assertEquals($logr->getLastLogLine(), $this->getLastLine($logr->getLogFilePath()));
-    }
-
-    public function assertLastLineNotEquals(Logger $logr)
-    {
-        $this->assertNotEquals($logr->getLastLogLine(), $this->getLastLine($logr->getLogFilePath()));
     }
 
     private function getLastLine($filename)
@@ -69,8 +68,4 @@ class LoggerTest extends PHPUnit_Framework_TestCase
         return trim($t);
     }
 
-    public function tearDown() {
-        #@unlink($this->logger->getLogFilePath());
-        #@unlink($this->errLogger->getLogFilePath());
-    }
 }

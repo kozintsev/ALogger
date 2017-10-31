@@ -133,7 +133,7 @@ class Logger extends AbstractLogger
         try {
             $fileHandle = fopen($this->logFilePath, 'ab');
             $this->lastLine = trim($message);
-            fwrite($fileHandle, $message."\n");
+            fwrite($fileHandle, $message);
             fclose($fileHandle);
         } catch (Exception $e) {
             echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
