@@ -235,6 +235,8 @@ class Logger extends AbstractLogger
     private function getLastNumberFile()
     {
         $files = scandir($this->logDirectory);
+        if ($files === false)
+            return 0;
         $i = 0;
         foreach ($files as $item) {
             $pos = strpos($item, $this->filename);
