@@ -1,7 +1,6 @@
 <?php
 namespace kozintsev\ALogger;
 
-
 use DateTime;
 use Exception;
 use Psr\Log\AbstractLogger;
@@ -48,13 +47,13 @@ class Logger extends AbstractLogger
      */
     protected $logLevels = array(
         LogLevel::EMERGENCY => 0,
-        LogLevel::ALERT     => 1,
-        LogLevel::CRITICAL  => 2,
-        LogLevel::ERROR     => 3,
-        LogLevel::WARNING   => 4,
-        LogLevel::NOTICE    => 5,
-        LogLevel::INFO      => 6,
-        LogLevel::DEBUG     => 7
+        LogLevel::ALERT => 1,
+        LogLevel::CRITICAL => 2,
+        LogLevel::ERROR => 3,
+        LogLevel::WARNING => 4,
+        LogLevel::NOTICE => 5,
+        LogLevel::INFO => 6,
+        LogLevel::DEBUG => 7
     );
 
 
@@ -72,9 +71,25 @@ class Logger extends AbstractLogger
     private $defaultPermissions = 0777;
 
     /**
+     * byte
+     * @var integer
+     */
+    private $max_file_size = 5120000;
+
+    /**
+     * @var string
+     */
+    private $logDirectory;
+
+    /**
+     * @var string
+     */
+    private $filename;
+
+    /**
      * Class constructor
      *
-     * @param string $logFullName      Full name logging file
+     * @param string $logFullName Full name logging file
      * @param string $logLevelThreshold The LogLevel Threshold
      */
     public function __construct($logFullName, $logLevelThreshold = LogLevel::DEBUG)
@@ -82,14 +97,14 @@ class Logger extends AbstractLogger
         $this->logLevelThreshold = $logLevelThreshold;
 
         $logDirectory = dirname($logFullName);
+        $this->filename = basename(str_replace("\\", "/", $logFullName));
 
         $logDirectory = rtrim($logDirectory, DIRECTORY_SEPARATOR);
-        if ( ! file_exists($logDirectory)) {
+        if (!file_exists($logDirectory)) {
             mkdir($logDirectory, $this->defaultPermissions, true);
         }
-
+        $this->logDirectory = $logDirectory;
         $this->logFullName = $logFullName;
-
     }
 
     /**
@@ -127,13 +142,33 @@ class Logger extends AbstractLogger
      */
     public function write($message)
     {
+        if (file_exists($this->logFullName)) {
+            $file_size = 0;
+            try {
+                $file_size = filesize($this->logFullName); // byte
+            } catch (Exception $e) {
+                echo 'Error determining the size of the file. Error text: ', $e->getMessage(), "\n";
+            }
+
+            if ($file_size > $this->max_file_size) {
+                // переименовываем текущий содаём новый
+                try {
+                    $number = $this->getLastNumberFile();
+                    $newFullName = $this->logFullName . '.' . $number;
+                    rename($this->logFullName, $newFullName);
+                } catch (Exception $e) {
+                    echo 'Error renaming the file.. Error text: ', $e->getMessage(), "\n";
+                }
+
+            }
+        }
         try {
             $fileHandle = fopen($this->logFullName, 'ab');
             $this->lastLine = trim($message);
             fwrite($fileHandle, $message);
             fclose($fileHandle);
         } catch (Exception $e) {
-            echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+            echo 'An error occurred while saving the file. Error text: ', $e->getMessage(), "\n";
             $fileHandle = null;
         }
     }
@@ -161,7 +196,7 @@ class Logger extends AbstractLogger
     /**
      * Formats the message for logging.
      *
-     * @param  string $level   The Log Level of the message
+     * @param  string $level The Log Level of the message
      * @param  string $message The message to log
      * @return string
      */
@@ -169,11 +204,11 @@ class Logger extends AbstractLogger
     {
         $message = "[{$this->getTimestamp()}] [{$level}] {$message}";
 
-        if (! empty($context)) {
-            $message .= PHP_EOL.$this->indent($this->contextToString($context));
+        if (!empty($context)) {
+            $message .= PHP_EOL . $this->indent($this->contextToString($context));
         }
 
-        return $message.PHP_EOL;
+        return $message . PHP_EOL;
 
     }
 
@@ -189,9 +224,26 @@ class Logger extends AbstractLogger
     {
         $originalTime = microtime(true);
         $micro = sprintf("%06d", ($originalTime - floor($originalTime)) * 1000000);
-        $date = new DateTime(date('Y-m-d H:i:s.'.$micro, $originalTime));
+        $date = new DateTime(date('Y-m-d H:i:s.' . $micro, $originalTime));
 
         return $date->format('Y-m-d G:i:s.u');
+    }
+
+    /**
+     *
+     * @return integer
+     */
+    private function getLastNumberFile()
+    {
+        $files = scandir($this->logDirectory);
+        $i = 0;
+        foreach ($files as $item) {
+            $pos = strpos($item, $this->filename);
+            if (!($pos === false)) {
+                $i++;
+            }
+        }
+        return $i;
     }
 
     /**
@@ -228,6 +280,6 @@ class Logger extends AbstractLogger
      */
     protected function indent($string, $indent = '    ')
     {
-        return $indent.str_replace("\n", "\n".$indent, $string);
+        return $indent . str_replace("\n", "\n" . $indent, $string);
     }
 }
