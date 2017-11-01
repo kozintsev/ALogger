@@ -149,9 +149,7 @@ class Logger extends AbstractLogger
             } catch (Exception $e) {
                 echo 'Error determining the size of the file. Error text: ', $e->getMessage(), "\n";
             }
-
             if ($file_size > $this->max_file_size) {
-                // переименовываем текущий содаём новый
                 try {
                     $number = $this->getLastNumberFile();
                     $newFullName = $this->logFullName . '.' . $number;
