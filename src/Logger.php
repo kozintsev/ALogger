@@ -155,7 +155,8 @@ class Logger extends AbstractLogger
                 try {
                     $number = $this->getLastNumberFile();
                     $newFullName = $this->logFullName . '.' . $number;
-                    rename($this->logFullName, $newFullName);
+                    if ( ! file_exists($newFullName))
+                        rename($this->logFullName, $newFullName);
                 } catch (Exception $e) {
                     echo 'Error renaming the file.. Error text: ', $e->getMessage(), "\n";
                 }
