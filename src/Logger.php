@@ -151,7 +151,7 @@ class Logger extends AbstractLogger
             }
             if ($file_size > $this->max_file_size) {
                 try {
-                    $number = $this->getLastNumberFile();
+                    $number = $this->getLastNumberFile() + 1;
                     $newFullName = $this->logFullName . '.' . $number;
                     if ( ! file_exists($newFullName))
                         rename($this->logFullName, $newFullName);
@@ -232,19 +232,30 @@ class Logger extends AbstractLogger
      *
      * @return integer
      */
-    private function getLastNumberFile()
+    private function getLastNumberFile() : int
     {
         $files = scandir($this->logDirectory);
         if ($files === false)
             return 0;
         $i = 0;
+        $n = 0;
+        $t = 0;
         foreach ($files as $item) {
             $pos = strpos($item, $this->filename);
             if (!($pos === false)) {
+                $keywords = preg_split("/[.]+/", $item);
+                $c = count($keywords);
+                if ($c > 1) {
+                    $tmp = $keywords[$c - 1];
+                    if (is_numeric($tmp)) {
+                        $t = (int) $tmp;
+                        if ($n < $t) $n = $t;
+                    }
+                }
                 $i++;
             }
         }
-        return $i;
+        return $n;
     }
 
     /**
