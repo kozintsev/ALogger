@@ -10,3 +10,4 @@ use kozintsev\ALogger\Logger;
 
 $logger = new Logger(__DIR__ . '/tests/logs/test.log', \Psr\Log\LogLevel::DEBUG);
 $logger->info('test');
+
