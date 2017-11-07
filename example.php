@@ -8,6 +8,8 @@ require_once ("vendor/autoload.php");
 
 use kozintsev\ALogger\Logger;
 
-$logger = new Logger(__DIR__ . '/tests/logs/test.log', \Psr\Log\LogLevel::DEBUG);
+$logger = new Logger(__DIR__ . '/tests/logs/test.log', \Psr\Log\LogLevel::DEBUG, [
+    'max_file_size' => 0, // changes the log file extension
+]);
 $logger->info('test');
 
