@@ -65,7 +65,7 @@ ALogger supports additional options via third parameter in the constructor:
 <?php
 // Example
 $logger = new kozintsev\ALogger\Logger(__DIR__ . '/tests/logs/test.log', Psr\Log\LogLevel::WARNING, [
-    'max_file_size' => 0, // changes the log file extension
+    'max_file_size' => 0, // max file size, if set to 0, the size is not checked
 ]);
 ```
 
