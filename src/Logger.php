@@ -18,9 +18,9 @@ use Psr\Log\LogLevel;
  * $log->debug('x = 5'); //Prints nothing due to current severity threshhold
  *
  * @author  Oleg  Kozintsev<o.kozintsev@gmail.com>
- * @since   31.10.2017
+ * @since   07.11.2017
  * @link    https://github.com/kozintsev/ALogger
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 /**
@@ -28,6 +28,14 @@ use Psr\Log\LogLevel;
  */
 class Logger extends AbstractLogger
 {
+    /**
+     * ALogger options
+     * @var array
+     */
+    protected $options = [
+        'max_file_size' => 5120000
+    ];
+
     /**
      * Path to the log file
      * @var string
@@ -71,12 +79,6 @@ class Logger extends AbstractLogger
     private $defaultPermissions = 0777;
 
     /**
-     * byte
-     * @var integer
-     */
-    private $max_file_size = 5120000;
-
-    /**
      * @var string
      */
     private $logDirectory;
@@ -91,10 +93,12 @@ class Logger extends AbstractLogger
      *
      * @param string $logFullName Full name logging file
      * @param string $logLevelThreshold The LogLevel Threshold
+     * @param array $options
      */
-    public function __construct($logFullName, $logLevelThreshold = LogLevel::DEBUG)
+    public function __construct($logFullName, $logLevelThreshold = LogLevel::DEBUG, array $options = [])
     {
         $this->logLevelThreshold = $logLevelThreshold;
+        $this->options = array_merge($this->options, $options);
 
         $logDirectory = dirname($logFullName);
         $this->filename = basename(str_replace("\\", "/", $logFullName));
@@ -142,14 +146,15 @@ class Logger extends AbstractLogger
      */
     public function write($message)
     {
-        if (file_exists($this->logFullName)) {
+        if (file_exists($this->logFullName) && $this->options['max_file_size'] !== 0) {
+            $max_file_size = $this->options['max_file_size'];
             $file_size = 0;
             try {
                 $file_size = filesize($this->logFullName); // byte
             } catch (Exception $e) {
                 echo 'Error determining the size of the file. Error text: ', $e->getMessage(), "\n";
             }
-            if ($file_size > $this->max_file_size) {
+            if ($file_size > $max_file_size) {
                 try {
                     $number = $this->getLastNumberFile() + 1;
                     $newFullName = $this->logFullName . '.' . $number;
