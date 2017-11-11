@@ -144,7 +144,7 @@ class Logger extends AbstractLogger
      * @param string $message Line to write to the log
      * @return void
      */
-    public function write($message)
+    protected function write($message)
     {
         if (file_exists($this->logFullName) && $this->options['max_file_size'] !== 0) {
             $max_file_size = $this->options['max_file_size'];
