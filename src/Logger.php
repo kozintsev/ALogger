@@ -169,7 +169,7 @@ class Logger extends AbstractLogger
         try {
             $fileHandle = fopen($this->logFullName, 'ab');
             $this->lastLine = trim($message);
-            fwrite($fileHandle, $message);
+            fwrite($fileHandle, (string) $message);
             fclose($fileHandle);
         } catch (Exception $e) {
             echo 'An error occurred while saving the file. Error text: ', $e->getMessage(), "\n";
